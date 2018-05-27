@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 pub struct Chip8 {
     pub memory: [u8; 4096],
     pub V: [u8; 16],
@@ -28,18 +31,27 @@ impl Chip8 {
         }
     }
 
+    pub fn print_display(&self) {
+        for i in 0..32 {
+            for j in 0..64 {
+                print!("{}", self.graphics[i * j + j]);
+            }
+            println!("");
+        }
+    }
+
     pub fn emulate_cycle(&mut self) {
-        let mut opcode: u16 = self.fetch_opcode();
-        println!("Opcode: {:04X}", opcode);
+        let opcode: u16 = self.fetch_opcode();
+        // println!("Opcode: {:04X}", opcode);
         self.decode_opcode(opcode);
         self.execute_opcode(opcode);
     }
 
     fn fetch_opcode(&self) -> u16 {
         let high_order: u16 = u16::from(self.memory[self.pc])  << 8;
-        println!("High Order Byte: {:04X}", high_order);
+        // println!("High Order Byte: {:04X}", high_order);
         let low_order: u16 = u16::from(self.memory[self.pc + 1]);
-        println!("Low Order Byte: {:04X}", low_order);
+        // println!("Low Order Byte: {:04X}", low_order);
         high_order | low_order
     }
 
@@ -48,8 +60,9 @@ impl Chip8 {
         let instruction: u8 = (high_byte & 0xF0) >> 4;
         let x :usize = (high_byte & 0x0F) as usize;
         let y: usize = (low_byte & 0xF0) as usize;
+        let n: usize = (low_byte & 0x0F) as usize;
         let nnn: u16 = opcode & 0x0FFF;
-        println!("Instruction: {:X}", instruction);
+        // println!("Instruction: {:X}", instruction);
         match instruction {
             0x0 => {
                 match low_byte {
@@ -98,7 +111,7 @@ impl Chip8 {
                 self.V[x] += low_byte; 
             },
             0x8 => {
-                match low_byte & 0x0F {
+                match n {
                     0x0 => {
                         self.V[x] = self.V[y];
                     },
@@ -169,7 +182,9 @@ impl Chip8 {
             0xC => {
                 //Random
             },
-            0xD => {},
+            0xD => {
+
+            },
             0xE => {},
             0xF => {},
             _ => {}
@@ -182,9 +197,9 @@ impl Chip8 {
 
     fn bytes_from_opcode(opcode: u16) -> (u8, u8) {
         let high_order: u8 = ((opcode & 0xFF00) >> 8) as u8;
-        println!("High Order: {:X}", high_order);
+        // println!("High Order: {:X}", high_order);
         let low_order: u8 =  (opcode & 0x00FF) as u8;
-        println!("Low Order: {:X}", low_order);
+        // println!("Low Order: {:X}", low_order);
         (high_order, low_order)
     }
 
