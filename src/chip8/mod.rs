@@ -136,15 +136,39 @@ impl Chip8 {
                         self.V[0xF as usize] = vf;
                         self.V[x] = self.V[x] >> 1;
                     },
-                    0x7 => {},
-                    0xE => {},
+                    0x7 => {
+                        let mut vf: u8 = 0;
+                        if self.V[y] > self.V[x] {
+                            vf = 1;
+                        }
+                        self.V[0xF as usize] = vf;
+                        self.V[x] = self.V[y] - self.V[x]; //Should this be conditional?
+                    },
+                    0xE => {
+                        let mut vf: u8 = 0;
+                        if self.V[x] & 0x80 == 1 {
+                            vf = 1;
+                        }
+                        self.V[0xF as usize] = vf;
+                        self.V[x] = self.V[x] << 1;
+                    },
                     _ => {}
                 }
             },
-            0x9 => {},
-            0xA => {},
-            0xB => {},
-            0xC => {},
+            0x9 => {
+                if self.V[x] != self.V[y] {
+                    self.pc += 2;
+                }
+            },
+            0xA => {
+                self.I = nnn;
+            },
+            0xB => {
+                self.pc = usize::from(u16::from(self.V[0]) + nnn);
+            },
+            0xC => {
+                //Random
+            },
             0xD => {},
             0xE => {},
             0xF => {},
