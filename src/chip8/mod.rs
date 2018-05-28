@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod tests;
 
+const WIDTH: usize = 64;
+const HEIGHT: usize = 32;
+
 pub struct Chip8 {
     pub memory: [u8; 4096],
     pub V: [u8; 16],
@@ -11,7 +14,7 @@ pub struct Chip8 {
     pub sound: u8,
     pub stack: [u16; 16],
     pub keyboard: [u8; 16],
-    pub graphics: [u8; 64 * 32],
+    pub graphics: [u8; WIDTH * HEIGHT],
 
 }
 
@@ -27,13 +30,13 @@ impl Chip8 {
             sound: 0,
             stack: [0; 16],
             keyboard: [0; 16],
-            graphics: [0; 64 * 32],
+            graphics: [0; WIDTH * HEIGHT],
         }
     }
 
     pub fn print_display(&self) {
-        for i in 0..32 {
-            for j in 0..64 {
+        for i in 0..HEIGHT {
+            for j in 0..WIDTH {
                 print!("{}", self.graphics[i * j + j]);
             }
             println!("");
@@ -44,7 +47,6 @@ impl Chip8 {
         let opcode: u16 = self.fetch_opcode();
         // println!("Opcode: {:04X}", opcode);
         self.decode_opcode(opcode);
-        self.execute_opcode(opcode);
     }
 
     fn fetch_opcode(&self) -> u16 {
@@ -183,16 +185,17 @@ impl Chip8 {
                 //Random
             },
             0xD => {
-
+                let origin: (u8, u8) = (self.V[x], self.V[y]);
+                for i in 0..n {
+                    let byte: u8 = self.memory[usize::from(self.I) + i];
+                    //XOR with current byte in gfx
+                    // self.graphics[origin.0 * origin.1 + origin.1] = 
+                }
             },
             0xE => {},
             0xF => {},
             _ => {}
         }
-    }
-
-    fn execute_opcode(&mut self, opcode: u16) {
-
     }
 
     fn bytes_from_opcode(opcode: u16) -> (u8, u8) {
