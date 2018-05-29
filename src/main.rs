@@ -20,20 +20,21 @@ fn main() {
     chip8.graphics[224] = 1;
     chip8.print_display();
 
-    // while let Some(e) = window.next() {
-    //     window.draw_2d(&e, |context, graphics| {
-    //         clear([0.0, 0.0, 0.0, 1.0], graphics);
+    while let Some(e) = window.next() {
+        window.draw_2d(&e, |context, graphics| {
+            clear([0.0, 0.0, 0.0, 1.0], graphics);
 
-    //         for y in 0..32 {
-    //             for x in 0..64 {
-    //                 let mut color = [0.0, 0.0, 0.0, 1.0];
-    //                 if chip8.graphics[x + y * 64] != 0 {
-    //                     color = [1.0, 1.0, 1.0, 1.0];
-    //                 } 
-    //                 rectangle(color, [x as f64, y as f64, 10.0, 10.0], context.transform, graphics);
-    //             }
-    //         }
+            for y in 0..32 {
+                for x in 0..64 {
+                    let mut color = [0.0, 0.0, 0.0, 1.0];
+                    if chip8.graphics[x + y * 64] != 0 {
+                        println!("Pixel should be white [{}]", x+y*64);
+                        color = [1.0, 1.0, 1.0, 1.0];
+                    } 
+                    rectangle(color, [x as f64, y as f64, 10.0, 10.0], context.transform, graphics);
+                }
+            }
 
-    //     });
-    // }
+        });
+    }
 }
