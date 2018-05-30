@@ -6,8 +6,8 @@ const HEIGHT: usize = 32;
 
 pub struct Chip8 {
     pub memory: [u8; 4096],
-    pub v: [u8; 16],
-    pub i: u16,
+    pub V: [u8; 16],
+    pub I: u16,
     pc: usize,
     sp: usize,
     pub delay: u8,
@@ -21,8 +21,8 @@ impl Chip8 {
     pub fn new() -> Self {
         Chip8 {
             memory: [0; 4096],
-            v: [0; 16],
-            i: 0,
+            V: [0; 16],
+            I: 0,
             pc: 0x200,
             sp: 0,
             delay: 0,
@@ -90,102 +90,102 @@ impl Chip8 {
             }
             0x3 => {
                 //Conditional next instruction skip
-                if self.v[x] == low_byte {
+                if self.V[x] == low_byte {
                     self.pc += 2;
                 }
             }
             0x4 => {
-                if self.v[x] != low_byte {
+                if self.V[x] != low_byte {
                     self.pc += 2;
                 }
             }
             0x5 => {
-                if self.v[x] == self.v[y] {
+                if self.V[x] == self.V[y] {
                     self.pc += 2;
                 }
             }
             0x6 => {
-                self.v[x] = low_byte;
+                self.V[x] = low_byte;
             }
             0x7 => {
-                self.v[x] += low_byte;
+                self.V[x] += low_byte;
             }
             0x8 => {
                 match n {
                     0x0 => {
-                        self.v[x] = self.v[y];
+                        self.V[x] = self.V[y];
                     }
                     0x1 => {
-                        self.v[x] = self.v[x] | self.v[y];
+                        self.V[x] = self.V[x] | self.V[y];
                     }
                     0x2 => {
-                        self.v[x] = self.v[x] & self.v[y];
+                        self.V[x] = self.V[x] & self.V[y];
                     }
                     0x3 => {
-                        self.v[x] = self.v[x] ^ self.v[y];
+                        self.V[x] = self.V[x] ^ self.V[y];
                     }
                     0x4 => {
-                        let result: u16 = u16::from(self.v[x] + self.v[y]);
+                        let result: u16 = u16::from(self.V[x] + self.V[y]);
                         let mut vf: u8 = 0;
                         if result > 0xFF {
                             vf = 1;
                         }
-                        self.v[0xF as usize] = vf;
-                        self.v[x] += (result & 0x00FF) as u8;
+                        self.V[0xF as usize] = vf;
+                        self.V[x] += (result & 0x00FF) as u8;
                     }
                     0x5 => {
                         let mut vf: u8 = 0;
-                        if self.v[x] > self.v[y] {
+                        if self.V[x] > self.V[y] {
                             vf = 1;
                         }
-                        self.v[0xF as usize] = vf;
-                        self.v[x] -= self.v[y]; //Should this be conditional?
+                        self.V[0xF as usize] = vf;
+                        self.V[x] -= self.V[y]; //Should this be conditional?
                     }
                     0x6 => {
                         let mut vf: u8 = 0;
-                        if self.v[x] & 0x1 == 1 {
+                        if self.V[x] & 0x1 == 1 {
                             vf = 1;
                         }
-                        self.v[0xF as usize] = vf;
-                        self.v[x] = self.v[x] >> 1;
+                        self.V[0xF as usize] = vf;
+                        self.V[x] = self.V[x] >> 1;
                     }
                     0x7 => {
                         let mut vf: u8 = 0;
-                        if self.v[y] > self.v[x] {
+                        if self.V[y] > self.V[x] {
                             vf = 1;
                         }
-                        self.v[0xF as usize] = vf;
-                        self.v[x] = self.v[y] - self.v[x]; //Should this be conditional?
+                        self.V[0xF as usize] = vf;
+                        self.V[x] = self.V[y] - self.V[x]; //Should this be conditional?
                     }
                     0xE => {
                         let mut vf: u8 = 0;
-                        if self.v[x] & 0x80 == 1 {
+                        if self.V[x] & 0x80 == 1 {
                             vf = 1;
                         }
-                        self.v[0xF as usize] = vf;
-                        self.v[x] = self.v[x] << 1;
+                        self.V[0xF as usize] = vf;
+                        self.V[x] = self.V[x] << 1;
                     }
                     _ => {}
                 }
             }
             0x9 => {
-                if self.v[x] != self.v[y] {
+                if self.V[x] != self.V[y] {
                     self.pc += 2;
                 }
             }
             0xA => {
-                self.i = nnn;
+                self.I = nnn;
             }
             0xB => {
-                self.pc = usize::from(u16::from(self.v[0]) + nnn);
+                self.pc = usize::from(u16::from(self.V[0]) + nnn);
             }
             0xC => {
                 //Random
             }
             0xD => {
-                let origin: (u8, u8) = (self.v[x], self.v[y]);
+                let origin: (u8, u8) = (self.V[x], self.V[y]);
                 for i in 0..n {
-                    let byte: u8 = self.memory[usize::from(self.i) + i];
+                    let byte: u8 = self.memory[usize::from(self.I) + i];
                     //XOR with current byte in gfx
                     // self.graphics[origin.0 * origin.1 + origin.1] =
                 }
