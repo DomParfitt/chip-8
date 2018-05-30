@@ -18,7 +18,7 @@ pub struct Chip8 {
     pub delay: u8,
     pub sound: u8,
     pub stack: [u16; 16],
-    pub keyboard: [u8; 16],
+    pub keyboard: [bool; 16],
     pub graphics: [bool; WIDTH * HEIGHT],
 }
 
@@ -33,7 +33,7 @@ impl Chip8 {
             delay: 0,
             sound: 0,
             stack: [0; 16],
-            keyboard: [0; 16],
+            keyboard: [false; 16],
             graphics: [false; WIDTH * HEIGHT],
         };
         cpu.init();
@@ -229,9 +229,18 @@ impl Chip8 {
                 }
             }
             0xE => {
+                let key = self.V[x] as usize;
                 match low_byte {
-                    0x9E => {},
-                    0xA1 => {},
+                    0x9E => {
+                        if self.keyboard[key] {
+                            self.pc += 2;
+                        }
+                    },
+                    0xA1 => {
+                        if !self.keyboard[key] {
+                            self.pc += 2;
+                        }
+                    },
                     _ => {},
                 }
             }
@@ -240,7 +249,19 @@ impl Chip8 {
                     0x07 => {
                         self.V[x] = self.delay;
                     },
-                    0x0A => {},
+                    0x0A => {
+                        let mut key_pressed = false;
+                        for i in 0..self.keyboard.len() {
+                            if self.keyboard[i] {
+                                self.V[x] = i as u8;
+                                key_pressed = true;
+                                break;
+                            }
+                        }
+                        if !key_pressed {
+                            self.pc -= 2;
+                        }
+                    },
                     0x15 => {
                         self.delay = self.V[x];
                     },
@@ -251,10 +272,18 @@ impl Chip8 {
                         self.I += u16::from(self.V[x]);
                     },
                     0x29 => {
-
+                        let character = u16::from(self.V[x]);
+                        self.I = character * 5;
                     },
                     0x33 => {
-
+                        let value = self.V[x];
+                        let index = self.I as usize;
+                        let hundreds = value / 100;
+                        let tens = (value - (hundreds * 100)) / 10;
+                        let units = value - (hundreds * 100) - (tens * 10);
+                        self.memory[index] = hundreds;
+                        self.memory[index + 1] = tens;
+                        self.memory[index + 2] = units; 
                     },
                     0x55 => {
                         for i in 0..x {
