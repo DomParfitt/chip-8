@@ -188,16 +188,17 @@ impl Chip8 {
                 //Random
             }
             0xD => {
-                let (x, y): (u8, u8) = (self.V[x], self.V[y]);
+                let (x, y) = (usize::from(self.V[x]), usize::from(self.V[y]);
                 for i in 0..n {
                     let byte: u8 = self.memory[usize::from(self.I) + i];
-                    let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(usize::from(x), usize::from(y)  + i));
+                    let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(x, y + i));
                     let new_pixels = byte ^ pixels;
                     if pixels != new_pixels {
                         self.V[0xF] = 1;
                     } else {
                         self.V[0xF] = 0;
                     }
+                    self.update_pixels_at(x, y + i);
                 }
             }
             0xE => {}
@@ -242,7 +243,7 @@ impl Chip8 {
     }
 
     pub fn pixel_at(&self, x: usize, y: usize) -> bool {
-        self.graphics[x + y * 64]
+        self.graphics[x + y * WIDTH]
     }
 
     pub fn pixel_byte_at(&self, x: usize, y: usize) -> [bool; 8] {
@@ -252,5 +253,16 @@ impl Chip8 {
             pixel_byte[i] = self.pixel_at(x_shifted, y);
         }
         pixel_byte
+    }
+
+    pub fn update_pixel_at(&mut self, x: usize, y: usize, pixel: bool) {
+        self.graphics[x + y * WIDTH] = pixel;
+    }
+
+    pub fn update_pixels_at(&mut self, x: usize, y: usize, pixels: [bool; 8]) {
+        for i in 0..8 {
+            let x_shifted = (x + i) % WIDTH;
+            self.update_pixel_at(x_shifted, y, pixels[i]);
+        }
     }
 }
