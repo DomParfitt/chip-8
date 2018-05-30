@@ -1,6 +1,11 @@
 #[cfg(test)]
 mod tests;
 
+extern crate rand;
+use rand::prelude::*;
+
+use sprite;
+
 const WIDTH: usize = 64;
 const HEIGHT: usize = 32;
 
@@ -19,7 +24,7 @@ pub struct Chip8 {
 
 impl Chip8 {
     pub fn new() -> Self {
-        Chip8 {
+        let mut cpu = Chip8 {
             memory: [0; 4096],
             V: [0; 16],
             I: 0,
@@ -30,6 +35,17 @@ impl Chip8 {
             stack: [0; 16],
             keyboard: [0; 16],
             graphics: [false; WIDTH * HEIGHT],
+        };
+        cpu.init();
+        cpu
+    }
+
+    fn init(&mut self) {
+        let fonts = sprite::get_font_set();
+        for i in 0..fonts.len() {
+            for byte in 0..fonts[i].len() {
+                self.memory[byte + i * fonts[i].len()] = fonts[i][byte];
+            }
         }
     }
 
@@ -77,6 +93,8 @@ impl Chip8 {
                     }
                     0xEE => {
                         //Return from subroutine
+                        self.pc = usize::from(self.stack[self.sp]);
+                        self.sp -= 1;
                     }
                     _ => {
                         //Jump to routine
@@ -186,16 +204,18 @@ impl Chip8 {
             }
             0xC => {
                 //Random
+                let random_byte: u8 = random();
+                self.V[x] = random_byte & low_byte;
             }
             0xD => {
                 let (x, y) = (usize::from(self.V[x]), usize::from(self.V[y]));
                 for i in 0..n {
                     let byte: u8 = self.memory[usize::from(self.I) + i];
-                    println!("New display byte {:b}", byte);
+                    // println!("New display byte {:b}", byte);
                     let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(x, y + i));
-                    println!("Current pixels {:b}", pixels);
+                    // println!("Current pixels {:b}", pixels);
                     let new_pixels = byte ^ pixels;
-                    println!("New pixels {:b}", new_pixels);
+                    // println!("New pixels {:b}", new_pixels);
                     if pixels != new_pixels {
                         self.V[0xF] = 1;
                     } else {
@@ -205,7 +225,40 @@ impl Chip8 {
                 }
             }
             0xE => {}
-            0xF => {}
+            0xF => {
+                match low_byte {
+                    0x07 => {
+                        self.V[x] = self.delay;
+                    },
+                    0x0A => {},
+                    0x15 => {
+                        self.delay = self.V[x];
+                    },
+                    0x18 => {
+                        self.sound = self.V[x];
+                    },
+                    0x1E => {
+                        self.I += u16::from(self.V[x]);
+                    },
+                    0x29 => {
+
+                    },
+                    0x33 => {
+
+                    },
+                    0x55 => {
+                        for i in 0..x {
+                            self.memory[usize::from(self.I) + i] = self.V[i];
+                        }
+                    },
+                    0x65 => {
+                        for i in 0..x {
+                            self.V[i] = self.memory[usize::from(self.I) + i];
+                        }
+                    },
+                    _ => {},
+                }
+            }
             _ => {}
         }
     }
