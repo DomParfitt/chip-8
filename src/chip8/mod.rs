@@ -188,7 +188,7 @@ impl Chip8 {
                 //Random
             }
             0xD => {
-                let (x, y) = (usize::from(self.V[x]), usize::from(self.V[y]);
+                let (x, y) = (usize::from(self.V[x]), usize::from(self.V[y]));
                 for i in 0..n {
                     let byte: u8 = self.memory[usize::from(self.I) + i];
                     let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(x, y + i));
@@ -198,7 +198,7 @@ impl Chip8 {
                     } else {
                         self.V[0xF] = 0;
                     }
-                    self.update_pixels_at(x, y + i);
+                    self.update_pixels_at(x, y + i, Chip8::bool_array_from_byte(new_pixels));
                 }
             }
             0xE => {}
