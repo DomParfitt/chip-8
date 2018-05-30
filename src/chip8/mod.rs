@@ -60,7 +60,7 @@ impl Chip8 {
         let (high_byte, low_byte) = Chip8::bytes_from_opcode(opcode);
         let instruction: u8 = (high_byte & 0xF0) >> 4;
         let x: usize = (high_byte & 0x0F) as usize;
-        let y: usize = (low_byte & 0xF0) as usize;
+        let y: usize = ((low_byte & 0xF0) >> 4) as usize;
         let n: usize = (low_byte & 0x0F) as usize;
         let nnn: u16 = opcode & 0x0FFF;
         // println!("Instruction: {:X}", instruction);

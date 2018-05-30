@@ -11,8 +11,11 @@ fn main() {
         [64 * 10, 32 * 10]
     ).build().unwrap();
     let mut chip8 = chip8::Chip8::new();
-    chip8.memory[0x200] = 0xA2;
-    chip8.memory[0x201] = 0xF0;
+    chip8.memory[0x200] = 0xD0;
+    chip8.memory[0x201] = 0x11;
+    chip8.V[0] = 40;
+    chip8.V[1] = 20;
+    chip8.I = 0b10010101;
     chip8.emulate_cycle();
 
     chip8.graphics[224] = true;
