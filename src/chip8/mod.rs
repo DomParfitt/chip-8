@@ -63,7 +63,7 @@ impl Chip8 {
         let y: usize = ((low_byte & 0xF0) >> 4) as usize;
         let n: usize = (low_byte & 0x0F) as usize;
         let nnn: u16 = opcode & 0x0FFF;
-        // println!("Instruction: {:X}", instruction);
+        println!("Instruction: {:X}\nX: {:X}\nY: {:X}\nN: {:X}\nNNN: {:X}", instruction, x, y, n, nnn);
         match instruction {
             0x0 => {
                 match low_byte {
@@ -191,8 +191,11 @@ impl Chip8 {
                 let (x, y) = (usize::from(self.V[x]), usize::from(self.V[y]));
                 for i in 0..n {
                     let byte: u8 = self.memory[usize::from(self.I) + i];
+                    println!("New display byte {:b}", byte);
                     let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(x, y + i));
+                    println!("Current pixels {:b}", pixels);
                     let new_pixels = byte ^ pixels;
+                    println!("New pixels {:b}", new_pixels);
                     if pixels != new_pixels {
                         self.V[0xF] = 1;
                     } else {
