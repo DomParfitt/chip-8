@@ -14,7 +14,7 @@ pub struct Chip8 {
     pub sound: u8,
     pub stack: [u16; 16],
     pub keyboard: [u8; 16],
-    pub graphics: [u8; WIDTH * HEIGHT],
+    pub graphics: [bool; WIDTH * HEIGHT],
 }
 
 impl Chip8 {
@@ -29,14 +29,14 @@ impl Chip8 {
             sound: 0,
             stack: [0; 16],
             keyboard: [0; 16],
-            graphics: [0; WIDTH * HEIGHT],
+            graphics: [false; WIDTH * HEIGHT],
         }
     }
 
     pub fn print_display(&self) {
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
-                print!("{}", self.graphics[x + y * 64]);
+                print!("{}", if self.pixel_at(x, y) {1} else {0});
             }
             println!("");
         }
@@ -69,6 +69,11 @@ impl Chip8 {
                 match low_byte {
                     0xE0 => {
                         //Clear display
+                        for y in 0..HEIGHT {
+                            for x in 0..WIDTH {
+                                self.graphics[x + y * 64] = false;
+                            }
+                        }
                     }
                     0xEE => {
                         //Return from subroutine
@@ -183,11 +188,16 @@ impl Chip8 {
                 //Random
             }
             0xD => {
-                let origin: (u8, u8) = (self.V[x], self.V[y]);
+                let (x, y): (u8, u8) = (self.V[x], self.V[y]);
                 for i in 0..n {
                     let byte: u8 = self.memory[usize::from(self.I) + i];
-                    //XOR with current byte in gfx
-                    // self.graphics[origin.0 * origin.1 + origin.1] =
+                    let pixels: u8 = Chip8::byte_from_bool_array(self.pixel_byte_at(usize::from(x), usize::from(y)  + i));
+                    let new_pixels = byte ^ pixels;
+                    if pixels != new_pixels {
+                        self.V[0xF] = 1;
+                    } else {
+                        self.V[0xF] = 0;
+                    }
                 }
             }
             0xE => {}
@@ -210,5 +220,37 @@ impl Chip8 {
 
     fn low_nibble_from_byte(byte: u8) -> u8 {
         byte & 0x0F
+    }
+
+    fn byte_from_bool_array(array: [bool; 8]) -> u8 {
+        let mut result: u8 = 0b00000000;
+        for i in 0..8 {
+            if array[i] {
+                result = result | (0b10000000 >> i)
+            }
+        }
+        result
+    }
+
+    fn bool_array_from_byte(byte: u8) -> [bool; 8] {
+        let mut array: [bool; 8] = [false; 8];
+        for i in 0..8 {
+            let temp_byte = byte;
+            array[i] = temp_byte & (0b10000000 >> i) != 0;
+        }
+        array
+    }
+
+    pub fn pixel_at(&self, x: usize, y: usize) -> bool {
+        self.graphics[x + y * 64]
+    }
+
+    pub fn pixel_byte_at(&self, x: usize, y: usize) -> [bool; 8] {
+        let mut pixel_byte: [bool; 8] = [false; 8];
+        for i in 0..8 {
+            let x_shifted = (x + i) % WIDTH;
+            pixel_byte[i] = self.pixel_at(x_shifted, y);
+        }
+        pixel_byte
     }
 }
