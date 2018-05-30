@@ -5,3 +5,4 @@ authors = ["Dom"]
 
 [dependencies]
 piston_window = "0.80.0"
+rand = "0.5.0"
