@@ -62,6 +62,10 @@ impl Chip8 {
         let opcode: u16 = self.fetch_opcode();
         // println!("Opcode: {:04X}", opcode);
         self.decode_opcode(opcode);
+        self.pc += 2;
+        if self.pc >= 0x1000 {
+            self.pc = 0x200;
+        }
     }
 
     fn fetch_opcode(&self) -> u16 {
@@ -79,7 +83,7 @@ impl Chip8 {
         let y: usize = ((low_byte & 0xF0) >> 4) as usize;
         let n: usize = (low_byte & 0x0F) as usize;
         let nnn: u16 = opcode & 0x0FFF;
-        println!("Instruction: {:X}\nX: {:X}\nY: {:X}\nN: {:X}\nNNN: {:X}", instruction, x, y, n, nnn);
+        // println!("Instruction: {:X}\nX: {:X}\nY: {:X}\nN: {:X}\nNNN: {:X}", instruction, x, y, n, nnn);
         match instruction {
             0x0 => {
                 match low_byte {
@@ -224,7 +228,13 @@ impl Chip8 {
                     self.update_pixels_at(x, y + i, Chip8::bool_array_from_byte(new_pixels));
                 }
             }
-            0xE => {}
+            0xE => {
+                match low_byte {
+                    0x9E => {},
+                    0xA1 => {},
+                    _ => {},
+                }
+            }
             0xF => {
                 match low_byte {
                     0x07 => {
