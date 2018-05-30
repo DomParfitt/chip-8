@@ -49,6 +49,21 @@ impl Chip8 {
         }
     }
 
+    pub fn load_program(&mut self, program: Vec<u8>) {
+        for i in 0..program.len() {
+            if i > 0x1000 {
+                panic!("Program is too large for memory.");
+            }
+
+            self.memory[0x200 + i] = program.as_slice()[i];
+
+        }
+    }
+
+    pub fn load(&mut self, rom: String) {
+
+    }
+
     pub fn print_display(&self) {
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
