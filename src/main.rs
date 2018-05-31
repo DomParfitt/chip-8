@@ -5,6 +5,7 @@ use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
 
 mod chip8;
 mod sprite;
+mod assembler;
 
 fn main() {
     let mut window: PistonWindow = WindowSettings::new("CHIP 8", [64 * 10, 32 * 10])
