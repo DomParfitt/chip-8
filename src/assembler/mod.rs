@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 pub fn assemble(program: String) -> Vec<u8> {
     let mut assembled_program: Vec<u8> = Vec::new();
     let tokens: Vec<&str> = program.split(" ").collect();
@@ -18,8 +21,8 @@ pub fn assemble(program: String) -> Vec<u8> {
             // "SYS" => {
 
             // }
-            "JP" => {}
-            "CALL" => {}
+            // "JP" => {}
+            // "CALL" => {}
             "SE" => {
                 i += 1;
                 let register_token = tokens[i];
@@ -31,30 +34,30 @@ pub fn assemble(program: String) -> Vec<u8> {
                     low = u8::from_str_radix(tokens[i], 16).unwrap();
                 }
             }
-            "SNE" => {}
-            "LD" => {}
-            "ADD" => {}
-            "OR" => {}
-            "AND" => {}
-            "XOR" => {}
-            "SUB" => {}
-            "SHR" => {}
-            "SUBN" => {}
-            "SHL" => {}
-            "RND" => {}
-            "DRW" => {}
-            "SKP" => {}
-            "SKNP" => {}
+            // "SNE" => {}
+            // "LD" => {}
+            // "ADD" => {}
+            // "OR" => {}
+            // "AND" => {}
+            // "XOR" => {}
+            // "SUB" => {}
+            // "SHR" => {}
+            // "SUBN" => {}
+            // "SHL" => {}
+            // "RND" => {}
+            // "DRW" => {}
+            // "SKP" => {}
+            // "SKNP" => {}
             _ => {high = 0x00;
                 low = 0xE0;}//panic!("Unrecognised token."),
         }
 
-        let operand = tokens[i + 1];
-        // assembled_program.push(high);
-        // assembled_program.push(low);
+        // let operand = tokens[i + 1];
+        assembled_program.push(high);
+        assembled_program.push(low);
         i += 1;
     }
-    vec![]
+    assembled_program
 }
 
 fn assemble_opcode(opcode: &str, operand: &str) -> (u8, u8) {
