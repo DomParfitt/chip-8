@@ -10,19 +10,31 @@ pub fn assemble(program: String) -> Vec<u8> {
         let mut high: u8;
         let mut low: u8;
         match opcode {
+            "ADD" => {},
+            "AND" => {
+                i += 1;
+                let x = tokens[i];
+                high =  (0x8 << 8) | get_register_number(x);
+                i += 1;
+                let y = tokens[i];
+                low = (get_register_number(y) << 8) | 0x2;
+            },
+            "CALL" => {},
             "CLS" => {
                 high = 0x00;
                 low = 0xE0;
-            }
+            },
+            "DRW" => {
+                
+            },
+            "JP" => {},
+            "LD" => {},
+            "OR" => {},
             "RET" => {
                 high = 0x00;
                 low = 0xEE;
-            }
-            // "SYS" => {
-
-            // }
-            // "JP" => {}
-            // "CALL" => {}
+            },
+            "RND" => {},
             "SE" => {
                 i += 1;
                 let register_token = tokens[i];
@@ -33,21 +45,16 @@ pub fn assemble(program: String) -> Vec<u8> {
                 } else {
                     low = u8::from_str_radix(tokens[i], 16).unwrap();
                 }
-            }
-            // "SNE" => {}
-            // "LD" => {}
-            // "ADD" => {}
-            // "OR" => {}
-            // "AND" => {}
-            // "XOR" => {}
-            // "SUB" => {}
-            // "SHR" => {}
-            // "SUBN" => {}
-            // "SHL" => {}
-            // "RND" => {}
-            // "DRW" => {}
-            // "SKP" => {}
-            // "SKNP" => {}
+            },
+            "SHL" => {},
+            "SHR" => {},
+            "SKNP" => {},
+            "SKP" => {},
+            "SNE" => {},
+            "SUB" => {},
+            "SUBN" => {},
+            "SYS" => {},
+            "XOR" => {},
             _ => {high = 0x00;
                 low = 0xE0;}//panic!("Unrecognised token."),
         }
