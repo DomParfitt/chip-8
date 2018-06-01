@@ -2,7 +2,6 @@ extern crate piston;
 extern crate piston_window;
 extern crate rand;
 
-use piston::event_loop::*;
 use piston::input::*;
 use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
 
