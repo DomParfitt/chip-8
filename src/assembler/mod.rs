@@ -60,8 +60,8 @@ pub fn assemble(program: String) -> Vec<u8> {
         }
 
         // let operand = tokens[i + 1];
-        assembled_program.push(high);
-        assembled_program.push(low);
+        // assembled_program.push(high);
+        // assembled_program.push(low);
         i += 1;
     }
     assembled_program
