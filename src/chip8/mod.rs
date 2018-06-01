@@ -2,15 +2,18 @@
 mod tests;
 
 extern crate rand;
-use rand::prelude::*;
-
+use rand::prelude::random;
 use sprite;
+use std::fs::File;
+use std::io::prelude::Read;
 
 const WIDTH: usize = 64;
 const HEIGHT: usize = 32;
+const FIRST_ADDRESS: usize = 0x200;
+const MEM_SIZE: usize = 4096;
 
 pub struct Chip8 {
-    pub memory: [u8; 4096],
+    pub memory: [u8; MEM_SIZE],
     pub V: [u8; 16],
     pub I: u16,
     pc: usize,
@@ -25,10 +28,10 @@ pub struct Chip8 {
 impl Chip8 {
     pub fn new() -> Self {
         let mut cpu = Chip8 {
-            memory: [0; 4096],
+            memory: [0; MEM_SIZE],
             V: [0; 16],
             I: 0,
-            pc: 0x200,
+            pc: FIRST_ADDRESS,
             sp: 0,
             delay: 0,
             sound: 0,
@@ -41,16 +44,24 @@ impl Chip8 {
     }
 
     pub fn load_program(&mut self, program: Vec<u8>) {
-        for i in 0..program.len() {
-            if i > 0x1000 {
-                panic!("Program is too large for memory.");
-            }
+        if program.len() > self.memory.len() {
+            panic!("Program is too large for memory.");
+        }
 
-            self.memory[0x200 + i] = program.as_slice()[i];
+        for i in 0..program.len() {
+            self.memory[FIRST_ADDRESS + i] = program[i];
         }
     }
 
-    pub fn load(&mut self, rom: String) {}
+    pub fn load(&mut self, rom: String) {
+        let mut file = File::open(rom).unwrap();
+        let mut buffer: [u8; MEM_SIZE - FIRST_ADDRESS] = [0; MEM_SIZE - FIRST_ADDRESS];
+        if let Ok(size) = file.read(&mut buffer) {
+            for i in 0..size {
+                self.memory[FIRST_ADDRESS + i] = buffer[i];
+            }
+        }
+    }
 
     pub fn print_display(&self) {
         for y in 0..HEIGHT {
@@ -65,10 +76,8 @@ impl Chip8 {
         let opcode: u16 = self.fetch_opcode();
         // println!("Opcode: {:04X}", opcode);
         self.decode_opcode(opcode);
-        self.pc += 2;
-        if self.pc >= 0x1000 {
-            self.pc = 0x200;
-        }
+        self.increment_program_counter();
+        self.decrement_timers();
     }
 
     pub fn pixel_at(&self, x: usize, y: usize) -> bool {
@@ -146,17 +155,17 @@ impl Chip8 {
             0x3 => {
                 //Conditional next instruction skip
                 if self.V[x] == low_byte {
-                    self.pc += 2;
+                    self.increment_program_counter();
                 }
             }
             0x4 => {
                 if self.V[x] != low_byte {
-                    self.pc += 2;
+                    self.increment_program_counter();
                 }
             }
             0x5 => {
                 if self.V[x] == self.V[y] {
-                    self.pc += 2;
+                    self.increment_program_counter();
                 }
             }
             0x6 => {
@@ -225,7 +234,7 @@ impl Chip8 {
             }
             0x9 => {
                 if self.V[x] != self.V[y] {
-                    self.pc += 2;
+                    self.increment_program_counter();
                 }
             }
             0xA => {
@@ -261,12 +270,12 @@ impl Chip8 {
                 match low_byte {
                     0x9E => {
                         if self.keyboard[key] {
-                            self.pc += 2;
+                            self.increment_program_counter();
                         }
                     }
                     0xA1 => {
                         if !self.keyboard[key] {
-                            self.pc += 2;
+                            self.increment_program_counter();
                         }
                     }
                     _ => {}
@@ -286,7 +295,7 @@ impl Chip8 {
                         }
                     }
                     if !key_pressed {
-                        self.pc -= 2;
+                        self.increment_program_counter();
                     }
                 }
                 0x15 => {
@@ -325,6 +334,23 @@ impl Chip8 {
                 _ => {}
             },
             _ => {}
+        }
+    }
+
+    fn increment_program_counter(&mut self) {
+        self.pc += 2;
+        if self.pc >= self.memory.len() {
+            self.pc = FIRST_ADDRESS;
+        }
+    }
+
+    fn decrement_timers(&mut self) {
+        if self.sound > 0 {
+            self.sound -= 1;
+        }
+
+        if self.delay > 0 {
+            self.delay -= 1;
         }
     }
 
