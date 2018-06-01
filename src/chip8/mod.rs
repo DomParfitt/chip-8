@@ -40,15 +40,6 @@ impl Chip8 {
         cpu
     }
 
-    fn init(&mut self) {
-        let fonts = sprite::get_font_set();
-        for i in 0..fonts.len() {
-            for byte in 0..fonts[i].len() {
-                self.memory[byte + i * fonts[i].len()] = fonts[i][byte];
-            }
-        }
-    }
-
     pub fn load_program(&mut self, program: Vec<u8>) {
         for i in 0..program.len() {
             if i > 0x1000 {
@@ -56,18 +47,15 @@ impl Chip8 {
             }
 
             self.memory[0x200 + i] = program.as_slice()[i];
-
         }
     }
 
-    pub fn load(&mut self, rom: String) {
-
-    }
+    pub fn load(&mut self, rom: String) {}
 
     pub fn print_display(&self) {
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
-                print!("{}", if self.pixel_at(x, y) {1} else {0});
+                print!("{}", if self.pixel_at(x, y) { 1 } else { 0 });
             }
             println!("");
         }
@@ -80,6 +68,31 @@ impl Chip8 {
         self.pc += 2;
         if self.pc >= 0x1000 {
             self.pc = 0x200;
+        }
+    }
+
+    pub fn pixel_at(&self, x: usize, y: usize) -> bool {
+        self.graphics[x + y * WIDTH]
+    }
+
+    pub fn pixel_byte_at(&self, x: usize, y: usize) -> [bool; 8] {
+        let mut pixel_byte: [bool; 8] = [false; 8];
+        for i in 0..8 {
+            let x_shifted = (x + i) % WIDTH;
+            pixel_byte[i] = self.pixel_at(x_shifted, y);
+        }
+        pixel_byte
+    }
+}
+
+///Private functions
+impl Chip8 {
+    fn init(&mut self) {
+        let fonts = sprite::get_font_set();
+        for i in 0..fonts.len() {
+            for byte in 0..fonts[i].len() {
+                self.memory[byte + i * fonts[i].len()] = fonts[i][byte];
+            }
         }
     }
 
@@ -250,69 +263,67 @@ impl Chip8 {
                         if self.keyboard[key] {
                             self.pc += 2;
                         }
-                    },
+                    }
                     0xA1 => {
                         if !self.keyboard[key] {
                             self.pc += 2;
                         }
-                    },
-                    _ => {},
+                    }
+                    _ => {}
                 }
             }
-            0xF => {
-                match low_byte {
-                    0x07 => {
-                        self.V[x] = self.delay;
-                    },
-                    0x0A => {
-                        let mut key_pressed = false;
-                        for i in 0..self.keyboard.len() {
-                            if self.keyboard[i] {
-                                self.V[x] = i as u8;
-                                key_pressed = true;
-                                break;
-                            }
-                        }
-                        if !key_pressed {
-                            self.pc -= 2;
-                        }
-                    },
-                    0x15 => {
-                        self.delay = self.V[x];
-                    },
-                    0x18 => {
-                        self.sound = self.V[x];
-                    },
-                    0x1E => {
-                        self.I += u16::from(self.V[x]);
-                    },
-                    0x29 => {
-                        let character = u16::from(self.V[x]);
-                        self.I = character * 5;
-                    },
-                    0x33 => {
-                        let value = self.V[x];
-                        let index = self.I as usize;
-                        let hundreds = value / 100;
-                        let tens = (value - (hundreds * 100)) / 10;
-                        let units = value - (hundreds * 100) - (tens * 10);
-                        self.memory[index] = hundreds;
-                        self.memory[index + 1] = tens;
-                        self.memory[index + 2] = units; 
-                    },
-                    0x55 => {
-                        for i in 0..x {
-                            self.memory[usize::from(self.I) + i] = self.V[i];
-                        }
-                    },
-                    0x65 => {
-                        for i in 0..x {
-                            self.V[i] = self.memory[usize::from(self.I) + i];
-                        }
-                    },
-                    _ => {},
+            0xF => match low_byte {
+                0x07 => {
+                    self.V[x] = self.delay;
                 }
-            }
+                0x0A => {
+                    let mut key_pressed = false;
+                    for i in 0..self.keyboard.len() {
+                        if self.keyboard[i] {
+                            self.V[x] = i as u8;
+                            key_pressed = true;
+                            break;
+                        }
+                    }
+                    if !key_pressed {
+                        self.pc -= 2;
+                    }
+                }
+                0x15 => {
+                    self.delay = self.V[x];
+                }
+                0x18 => {
+                    self.sound = self.V[x];
+                }
+                0x1E => {
+                    self.I += u16::from(self.V[x]);
+                }
+                0x29 => {
+                    let character = u16::from(self.V[x]);
+                    self.I = character * 5;
+                }
+                0x33 => {
+                    let value = self.V[x];
+                    let index = self.I as usize;
+                    let hundreds = value / 100;
+                    let tens = (value - (hundreds * 100)) / 10;
+                    let units = value - (hundreds * 100) - (tens * 10);
+                    self.memory[index] = hundreds;
+                    self.memory[index + 1] = tens;
+                    self.memory[index + 2] = units;
+                }
+                0x55 => {
+                    for i in 0..x {
+                        self.memory[usize::from(self.I) + i] = self.V[i];
+                    }
+                }
+                0x65 => {
+                    for i in 0..x {
+                        self.V[i] = self.memory[usize::from(self.I) + i];
+                    }
+                }
+                _ => {}
+            },
             _ => {}
         }
     }
@@ -352,24 +363,11 @@ impl Chip8 {
         array
     }
 
-    pub fn pixel_at(&self, x: usize, y: usize) -> bool {
-        self.graphics[x + y * WIDTH]
-    }
-
-    pub fn pixel_byte_at(&self, x: usize, y: usize) -> [bool; 8] {
-        let mut pixel_byte: [bool; 8] = [false; 8];
-        for i in 0..8 {
-            let x_shifted = (x + i) % WIDTH;
-            pixel_byte[i] = self.pixel_at(x_shifted, y);
-        }
-        pixel_byte
-    }
-
-    pub fn update_pixel_at(&mut self, x: usize, y: usize, pixel: bool) {
+    fn update_pixel_at(&mut self, x: usize, y: usize, pixel: bool) {
         self.graphics[x + y * WIDTH] = pixel;
     }
 
-    pub fn update_pixels_at(&mut self, x: usize, y: usize, pixels: [bool; 8]) {
+    fn update_pixels_at(&mut self, x: usize, y: usize, pixels: [bool; 8]) {
         for i in 0..8 {
             let x_shifted = (x + i) % WIDTH;
             self.update_pixel_at(x_shifted, y, pixels[i]);
