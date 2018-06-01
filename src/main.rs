@@ -2,9 +2,9 @@ extern crate piston;
 extern crate piston_window;
 extern crate rand;
 
-use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
-use piston::input::*;
 use piston::event_loop::*;
+use piston::input::*;
+use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
 
 mod assembler;
 mod chip8;
@@ -38,12 +38,114 @@ fn main() {
 
     while let Some(e) = window.next() {
         chip8.emulate_cycle();
-        
-        if let Some(key_pressed) = e.press_args() {
+
+        if let Some(Button::Keyboard(key_pressed)) = e.press_args() {
+            println!("Key pressed {:?}", key_pressed);
+            match key_pressed {
+                Key::NumPad1 => {
+                    chip8.keyboard[0] = true;
+                }
+                Key::NumPad2 => {
+                    chip8.keyboard[1] = true;
+                }
+                Key::NumPad3 => {
+                    chip8.keyboard[2] = true;
+                }
+                Key::NumPad4 => {
+                    chip8.keyboard[3] = true;
+                }
+                Key::Q => {
+                    chip8.keyboard[4] = true;
+                }
+                Key::W => {
+                    chip8.keyboard[5] = true;
+                }
+                Key::E => {
+                    chip8.keyboard[6] = true;
+                }
+                Key::R => {
+                    chip8.keyboard[7] = true;
+                }
+                Key::A => {
+                    chip8.keyboard[8] = true;
+                }
+                Key::S => {
+                    chip8.keyboard[9] = true;
+                }
+                Key::D => {
+                    chip8.keyboard[10] = true;
+                }
+                Key::F => {
+                    chip8.keyboard[11] = true;
+                }
+                Key::Z => {
+                    chip8.keyboard[12] = true;
+                }
+                Key::X => {
+                    chip8.keyboard[13] = true;
+                }
+                Key::C => {
+                    chip8.keyboard[14] = true;
+                }
+                Key::V => {
+                    chip8.keyboard[15] = true;
+                }
+                _ => {}
+            }
         }
 
-        if let Some(key_released) = e.release_args() {
-
+        if let Some(Button::Keyboard(key_released)) = e.release_args() {
+            match key_released {
+                Key::NumPad1 => {
+                    chip8.keyboard[0] = false;
+                }
+                Key::NumPad2 => {
+                    chip8.keyboard[1] = false;
+                }
+                Key::NumPad3 => {
+                    chip8.keyboard[2] = false;
+                }
+                Key::NumPad4 => {
+                    chip8.keyboard[3] = false;
+                }
+                Key::Q => {
+                    chip8.keyboard[4] = false;
+                }
+                Key::W => {
+                    chip8.keyboard[5] = false;
+                }
+                Key::E => {
+                    chip8.keyboard[6] = false;
+                }
+                Key::R => {
+                    chip8.keyboard[7] = false;
+                }
+                Key::A => {
+                    chip8.keyboard[8] = false;
+                }
+                Key::S => {
+                    chip8.keyboard[9] = false;
+                }
+                Key::D => {
+                    chip8.keyboard[10] = false;
+                }
+                Key::F => {
+                    chip8.keyboard[11] = false;
+                }
+                Key::Z => {
+                    chip8.keyboard[12] = false;
+                }
+                Key::X => {
+                    chip8.keyboard[13] = false;
+                }
+                Key::C => {
+                    chip8.keyboard[14] = false;
+                }
+                Key::V => {
+                    chip8.keyboard[15] = false;
+                }
+                _ => {}
+            }
         }
 
         if chip8.V[0xF] != 0 {
