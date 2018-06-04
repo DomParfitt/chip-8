@@ -134,12 +134,10 @@ impl Chip8 {
                     }
                     0xEE => {
                         //Return from subroutine
-                        self.pc = usize::from(self.stack[self.sp]);
                         self.sp -= 1;
+                        self.pc = usize::from(self.stack[self.sp]);
                     }
-                    _ => {
-                        //Jump to routine
-                    }
+                    _ => panic!("Unrecognised instruction."),
                 }
             }
             0x1 => {
@@ -229,7 +227,7 @@ impl Chip8 {
                         self.V[0xF as usize] = vf;
                         self.V[x] = self.V[x] << 1;
                     }
-                    _ => {}
+                    _ => panic!("Unrecognised instruction."),
                 }
             }
             0x9 => {
@@ -278,7 +276,7 @@ impl Chip8 {
                             self.increment_program_counter();
                         }
                     }
-                    _ => {}
+                    _ => panic!("Unrecognised instruction."),
                 }
             }
             0xF => match low_byte {
@@ -331,9 +329,9 @@ impl Chip8 {
                         self.V[i] = self.memory[usize::from(self.I) + i];
                     }
                 }
-                _ => {}
+                _ => panic!("Unrecognised instruction."),
             },
-            _ => {}
+            _ => panic!("Unrecognised instruction."),
         }
     }
 
@@ -346,6 +344,7 @@ impl Chip8 {
 
     fn decrement_timers(&mut self) {
         if self.sound > 0 {
+            println!("BEEP");
             self.sound -= 1;
         }
 
