@@ -4,7 +4,7 @@ extern crate rand;
 
 use piston::input::*;
 use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
-use std::time::{Duration,SystemTime};
+use std::time::{Duration, Instant};
 
 mod assembler;
 mod chip8;
@@ -36,16 +36,20 @@ fn main() {
     // chip8.graphics[224] = true;
     // chip8.print_display();
 
-    let now = SystemTime::now();
+    let mut now = Instant::now();
     let mut cycle_count = 0;
     while let Some(e) = window.next() {
         chip8.emulate_cycle();
         cycle_count += 1;
-        if let Ok(elapsed) = now.elapsed() {
-            println!("Cycle# {}. {} seconds since last cycle.", cycle_count, elapsed.as_secs());
-        } else {
-            println!("Error retrieving elapsed time.");
-        }
+        // if cycle_count % 60 == 0 {
+            // println!(
+            //     "Cycle # {}. {}.{} seconds since last cycle.",
+            //     cycle_count,
+            //     now.elapsed().as_secs(),
+            //     now.elapsed().subsec_nanos()
+            // );
+            // now = Instant::now();
+        // }
 
         if let Some(Button::Keyboard(key_pressed)) = e.press_args() {
             println!("Key pressed {:?}", key_pressed);
