@@ -15,7 +15,7 @@ fn main() {
         .build()
         .unwrap();
     let mut chip8 = chip8::Chip8::new();
-    chip8.load("C:\\Users\\parfittdr\\projects\\chip-8\\roms\\pong".to_string());
+    chip8.load("./roms/pong".to_string());
 
     // for i in 0..12 {
     //     //Set origin
