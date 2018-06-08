@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests;
 
+mod opcode;
+
 extern crate rand;
 use rand::prelude::random;
 use sprite;
@@ -69,9 +71,6 @@ impl Chip8 {
             println!("0x{:03X}-0x{:03X} [0x{:02X}{:02X}]", x, x + 1, self.memory[x], self.memory[x + 1]);
             x += 2;
         }
-        // for x in FIRST_ADDRESS..MEM_SIZE {
-        //     println!("0x{:02X}[0x{:02X}]", x, self.memory[x]);
-        // }
     }
 
     pub fn print_display(&self) {
@@ -125,13 +124,14 @@ impl Chip8 {
     }
 
     fn decode_opcode(&mut self, opcode: u16) {
-        let (high_byte, low_byte) = Chip8::bytes_from_opcode(opcode);
-        let instruction: u8 = (high_byte & 0xF0) >> 4;
-        let x: usize = (high_byte & 0x0F) as usize;
-        let y: usize = ((low_byte & 0xF0) >> 4) as usize;
-        let n: usize = (low_byte & 0x0F) as usize;
-        let nnn: u16 = opcode & 0x0FFF;
-        // println!("Instruction: {:X}\nX: {:X}\nY: {:X}\nN: {:X}\nNNN: {:X}", instruction, x, y, n, nnn);
+        let opcode = opcode::Opcode::from(opcode);
+        let high_byte = opcode.high_byte;
+        let low_byte = opcode.low_byte;
+        let instruction = opcode.instruction;
+        let x = opcode.x;
+        let y = opcode.y;
+        let n = opcode.n;
+        let nnn = opcode.nnn;
         match instruction {
             0x0 => {
                 match low_byte {
@@ -364,7 +364,7 @@ impl Chip8 {
         }
     }
 
-    fn bytes_from_opcode(opcode: u16) -> (u8, u8) {
+    pub fn bytes_from_opcode(opcode: u16) -> (u8, u8) {
         let high_order: u8 = ((opcode & 0xFF00) >> 8) as u8;
         // println!("High Order: {:X}", high_order);
         let low_order: u8 = (opcode & 0x00FF) as u8;
