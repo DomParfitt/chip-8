@@ -63,6 +63,17 @@ impl Chip8 {
         }
     }
 
+    pub fn debug_memory(&self) {
+        let mut x = 0x200;
+        while x < MEM_SIZE {
+            println!("0x{:03X}-0x{:03X} [0x{:02X}{:02X}]", x, x + 1, self.memory[x], self.memory[x + 1]);
+            x += 2;
+        }
+        // for x in FIRST_ADDRESS..MEM_SIZE {
+        //     println!("0x{:02X}[0x{:02X}]", x, self.memory[x]);
+        // }
+    }
+
     pub fn print_display(&self) {
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
