@@ -68,7 +68,17 @@ impl Chip8 {
     pub fn debug_memory(&self) {
         let mut x = 0x200;
         while x < MEM_SIZE {
-            println!("0x{:03X}-0x{:03X} [0x{:02X}{:02X}]", x, x + 1, self.memory[x], self.memory[x + 1]);
+            let high_order: u16 = u16::from(self.memory[x]) << 8;
+            let low_order: u16 = u16::from(self.memory[x + 1]);
+            let opcode = high_order | low_order;
+            println!(
+                "0x{:03X}-0x{:03X} [0x{:02X}{:02X}] - {}",
+                x,
+                x + 1,
+                self.memory[x],
+                self.memory[x + 1],
+                self.print_opcode(opcode)
+            );
             x += 2;
         }
     }
@@ -117,9 +127,7 @@ impl Chip8 {
 
     fn fetch_opcode(&self) -> u16 {
         let high_order: u16 = u16::from(self.memory[self.pc]) << 8;
-        // println!("High Order Byte: {:04X}", high_order);
         let low_order: u16 = u16::from(self.memory[self.pc + 1]);
-        // println!("Low Order Byte: {:04X}", low_order);
         high_order | low_order
     }
 
@@ -407,6 +415,134 @@ impl Chip8 {
         for i in 0..8 {
             let x_shifted = (x + i) % WIDTH;
             self.update_pixel_at(x_shifted, y, pixels[i]);
+        }
+    }
+
+    fn print_opcode(&self, opcode: u16) -> String {
+        let opcode = opcode::Opcode::from(opcode);
+        let high_byte = opcode.high_byte;
+        let low_byte = opcode.low_byte;
+        let instruction = opcode.instruction;
+        let x = opcode.x;
+        let y = opcode.y;
+        let n = opcode.n;
+        let nnn = opcode.nnn;
+        match instruction {
+            0x0 => match low_byte {
+                0xE0 => {
+                    format!("CLR - Clear Display")
+                }
+                0xEE => {
+                    format!("RET - Return from sub")
+                }
+                _ => panic!("Unrecognised instruction."),
+            },
+            0x1 => {
+                format!("JP 0x{:03X}", nnn)
+            }
+            0x2 => {
+                format!("CALL 0x{:03X}", nnn)
+            }
+            0x3 => {
+                format!("SE V{} 0x{:04X}", x, low_byte)
+            }
+            0x4 => {
+                format!("SNE V{} 0x{:04X}", x, low_byte)
+            }
+            0x5 => {
+                format!("SE V{} V{}", x, y)
+            }
+            0x6 => {
+                format!("LD V{} 0x{:04X}", x, low_byte)
+            }
+            0x7 => {
+                format!("ADD V{} 0x{:04X}", x, low_byte)
+            }
+            0x8 => match n {
+                0x0 => {
+                    format!("LD V{} V{}", x, y)
+                }
+                0x1 => {
+                    format!("OR V{} V{}", x, y)
+                }
+                0x2 => {
+                    format!("AND V{} V{}", x, y)
+                }
+                0x3 => {
+                    format!("XOR V{} V{}", x, y)
+                }
+                0x4 => {
+                    format!("ADD V{} V{}", x, y)
+                }
+                0x5 => {
+                    format!("SUB V{} V{}", x, y)
+                }
+                0x6 => {
+                    format!("SHR V{} V{}", x, y)
+                }
+                0x7 => {
+                    format!("SUBN V{} V{}", x, y)
+                }
+                0xE => {
+                    format!("SHL V{} V{}", x, y)
+                }
+                _ => panic!("Unrecognised instruction."),
+            },
+            0x9 => {
+                format!("SNE V{} V{}", x, y)
+            }
+            0xA => {
+                format!("LD I 0x{:03X}", nnn)
+            }
+            0xB => {
+                format!("JP V0 0x{:03X}", nnn)
+            }
+            0xC => {
+                format!("RND V{} 0x{:04X}", x, low_byte)
+            }
+            0xD => {
+                format!("DRW V{} V{} 0x{:02X}", x, y, n)
+            }
+            0xE => match low_byte {
+                0x9E => {
+                    format!("SKP V{}", x)
+                }
+                0xA1 => {
+                    format!("SKNP V{}", x)
+                }
+                _ => panic!("Unrecognised instruction."),
+            },
+            0xF => match low_byte {
+                0x07 => {
+                    format!("LD V{} DT", x)
+                }
+                0x0A => {
+                    format!("LD V{} K", x)
+                }
+                0x15 => {
+                    format!("LD DT V{}", x)
+                }
+                0x18 => {
+                    format!("LD ST V{}", x)
+                }
+                0x1E => {
+                    format!("ADD I V{}", x)
+                }
+                0x29 => {
+                    format!("LD F V{}", x)
+                }
+                0x33 => {
+                    format!("LD B V{}", x)
+                }
+                0x55 => {
+                    format!("LD [I] V{}", x)
+                }
+                0x65 => {
+                    format!("LD V{} [I]", x)
+                }
+                _ => panic!("Unrecognised instruction."),
+            },
+            _ => panic!("Unrecognised instruction."),
         }
     }
 }
