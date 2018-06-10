@@ -16,6 +16,10 @@ fn main() {
         .unwrap();
     let mut chip8 = chip8::Chip8::new();
     chip8.load("./roms/pong".to_string());
+<<<<<<< HEAD
+=======
+    chip8.debug_memory();
+>>>>>>> ab18036dc7a9ee7a813e4b48fbb915f7d12da3f8
 
     // for i in 0..12 {
     //     //Set origin
