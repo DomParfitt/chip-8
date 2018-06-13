@@ -208,7 +208,8 @@ impl Chip8 {
                         self.V[x] = self.V[x] ^ self.V[y];
                     }
                     0x4 => {
-                        let result: u16 = u16::from(self.V[x] + self.V[y]);
+                        println!("[V{} = {:X}] + [V{} = {:X}]", x, self.V[x], y, self.V[y]);
+                        let result: u16 = u16::from(self.V[x] as u16 + self.V[y] as u16);
                         let mut vf: u8 = 0;
                         if result > 0xFF {
                             vf = 1;
