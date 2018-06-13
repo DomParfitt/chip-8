@@ -198,7 +198,9 @@ impl Chip8 {
                 self.V[x] = low_byte;
             }
             0x7 => {
-                self.V[x] += low_byte;
+                let mut vx = self.V[x] as u16;
+                vx += low_byte as u16;
+                self.V[x] = vx as u8;
             }
             0x8 => {
                 match n {
@@ -227,9 +229,9 @@ impl Chip8 {
                         let mut vf: u8 = 0;
                         if self.V[x] > self.V[y] {
                             vf = 1;
+                            self.V[x] -= self.V[y]; //Should this be conditional?
                         }
                         self.V[0xF as usize] = vf;
-                        self.V[x] -= self.V[y]; //Should this be conditional?
                     }
                     0x6 => {
                         let mut vf: u8 = 0;
@@ -243,9 +245,9 @@ impl Chip8 {
                         let mut vf: u8 = 0;
                         if self.V[y] > self.V[x] {
                             vf = 1;
+                            self.V[x] = self.V[y] - self.V[x]; //Should this be conditional?
                         }
                         self.V[0xF as usize] = vf;
-                        self.V[x] = self.V[y] - self.V[x]; //Should this be conditional?
                     }
                     0xE => {
                         let mut vf: u8 = 0;
