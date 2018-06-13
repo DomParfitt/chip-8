@@ -71,6 +71,10 @@ impl Chip8 {
             let high_order: u16 = u16::from(self.memory[x]) << 8;
             let low_order: u16 = u16::from(self.memory[x + 1]);
             let opcode = high_order | low_order;
+            if opcode == 0x0000 {
+                x += 2;
+                continue;
+            }
             println!(
                 "0x{:03X}-0x{:03X} [0x{:02X}{:02X}] - {}",
                 x,
@@ -132,6 +136,8 @@ impl Chip8 {
     }
 
     fn decode_opcode(&mut self, opcode: u16) {
+        // println!("Executing: {}", self.print_opcode(opcode));
+        
         let opcode = opcode::Opcode::from(opcode);
         let high_byte = opcode.high_byte;
         let low_byte = opcode.low_byte;
@@ -140,6 +146,7 @@ impl Chip8 {
         let y = opcode.y;
         let n = opcode.n;
         let nnn = opcode.nnn;
+
         match instruction {
             0x0 => {
                 match low_byte {
@@ -208,7 +215,6 @@ impl Chip8 {
                         self.V[x] = self.V[x] ^ self.V[y];
                     }
                     0x4 => {
-                        println!("[V{} = {:X}] + [V{} = {:X}]", x, self.V[x], y, self.V[y]);
                         let result: u16 = u16::from(self.V[x] as u16 + self.V[y] as u16);
                         let mut vf: u8 = 0;
                         if result > 0xFF {
