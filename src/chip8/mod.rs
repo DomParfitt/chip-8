@@ -361,6 +361,10 @@ impl Chip8 {
         }
     }
 
+    fn derement_program_counter(&mut self) {
+        self.pc -= 2;
+    }
+
     fn decrement_timers(&mut self) {
         if self.sound > 0 {
             println!("BEEP");
@@ -435,7 +439,7 @@ impl Chip8 {
                 0xEE => {
                     format!("RET - Return from sub")
                 }
-                _ => panic!("Unrecognised instruction."),
+                _ => String::from("Unrecognised instruction.")
             },
             0x1 => {
                 format!("JP 0x{:03X}", nnn)
@@ -486,7 +490,7 @@ impl Chip8 {
                 0xE => {
                     format!("SHL V{} V{}", x, y)
                 }
-                _ => panic!("Unrecognised instruction."),
+                _ => String::from("Unrecognised instruction.")
             },
             0x9 => {
                 format!("SNE V{} V{}", x, y)
@@ -510,7 +514,7 @@ impl Chip8 {
                 0xA1 => {
                     format!("SKNP V{}", x)
                 }
-                _ => panic!("Unrecognised instruction."),
+                _ => String::from("Unrecognised instruction.")
             },
             0xF => match low_byte {
                 0x07 => {
@@ -540,9 +544,9 @@ impl Chip8 {
                 0x65 => {
                     format!("LD V{} [I]", x)
                 }
-                _ => panic!("Unrecognised instruction."),
+                _ => String::from("Unrecognised instruction.")
             },
-            _ => panic!("Unrecognised instruction."),
+            _ => String::from("Unrecognised instruction.")
         }
     }
 }
