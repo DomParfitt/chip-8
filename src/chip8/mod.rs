@@ -162,12 +162,14 @@ impl Chip8 {
             0x1 => {
                 //Jump to address
                 self.pc = usize::from(nnn);
+                self.decrement_program_counter();
             }
             0x2 => {
                 //Call subroutine at address
                 self.stack[self.sp] = self.pc as u16;
                 self.sp += 1;
                 self.pc = usize::from(nnn);
+                self.decrement_program_counter();
             }
             0x3 => {
                 //Conditional next instruction skip
@@ -259,6 +261,7 @@ impl Chip8 {
             }
             0xB => {
                 self.pc = usize::from(u16::from(self.V[0]) + nnn);
+                self.decrement_program_counter()
             }
             0xC => {
                 //Random
@@ -361,7 +364,7 @@ impl Chip8 {
         }
     }
 
-    fn derement_program_counter(&mut self) {
+    fn decrement_program_counter(&mut self) {
         self.pc -= 2;
     }
 
