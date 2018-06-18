@@ -5,10 +5,13 @@ extern crate rand;
 use piston::input::*;
 use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
 use std::time::{Duration, Instant};
+use std::io;
 
 mod assembler;
 mod chip8;
 mod sprite;
+
+const DEBUG_MODE: bool = true;
 
 fn main() {
     let mut window: PistonWindow = WindowSettings::new("CHIP 8", [64 * 10, 32 * 10])
@@ -180,6 +183,15 @@ fn main() {
                     }
                 }
             });
+
+            if DEBUG_MODE {
+                println!("DEBUG MODE - Press any key to emulate next cycle");
+                // chip8.debug_memory();
+                let mut input = String::new();
+                io::stdin().read_line(&mut input);
+
+            }
+
         }
     }
 }
