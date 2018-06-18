@@ -18,8 +18,8 @@ pub struct Chip8 {
     pub memory: [u8; MEM_SIZE],
     pub V: [u8; 16],
     pub I: u16,
-    pc: usize,
-    sp: usize,
+    pub pc: usize,
+    pub sp: usize,
     pub delay: u8,
     pub sound: u8,
     pub stack: [u16; 16],
@@ -136,7 +136,7 @@ impl Chip8 {
     }
 
     fn decode_opcode(&mut self, opcode: u16) {
-        // println!("Executing: {}", self.print_opcode(opcode));
+        println!("Executing: {}", self.print_opcode(opcode));
         
         let opcode = opcode::Opcode::from(opcode);
         let high_byte = opcode.high_byte;
