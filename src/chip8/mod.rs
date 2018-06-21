@@ -8,6 +8,7 @@ use rand::prelude::random;
 use sprite;
 use std::fs::File;
 use std::io::prelude::Read;
+use std::fmt::{Display, Formatter, Result};
 
 const WIDTH: usize = 64;
 const HEIGHT: usize = 32;
@@ -85,6 +86,7 @@ impl Chip8 {
             );
             x += 2;
         }
+        println!("");
     }
 
     pub fn print_display(&self) {
@@ -94,6 +96,7 @@ impl Chip8 {
             }
             println!("");
         }
+        println!("");
     }
 
     pub fn emulate_cycle(&mut self) {
@@ -136,7 +139,7 @@ impl Chip8 {
     }
 
     fn decode_opcode(&mut self, opcode: u16) {
-        println!("Executing: {}", self.print_opcode(opcode));
+        // println!("Executing: {}", self.print_opcode(opcode));
         
         let opcode = opcode::Opcode::from(opcode);
         let high_byte = opcode.high_byte;
@@ -560,5 +563,11 @@ impl Chip8 {
             },
             _ => String::from("Unrecognised instruction.")
         }
+    }
+}
+
+impl Display for Chip8 {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "PC: {:03X}\nSP: {:X}\nStack: {:03X?}\nI: {:X}\nRegisters: {:?}\nNext Instruction: {}", self.pc, self.sp, self.stack, self.I, self.V, self.print_opcode(self.fetch_opcode()))
     }
 }

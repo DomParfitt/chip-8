@@ -4,8 +4,8 @@ extern crate rand;
 
 use piston::input::*;
 use piston_window::{clear, rectangle, PistonWindow, WindowSettings};
-use std::time::{Duration, Instant};
 use std::io;
+use std::time::{Duration, Instant};
 
 mod assembler;
 mod chip8;
@@ -21,38 +21,26 @@ fn main() {
     chip8.load("./roms/pong".to_string());
     chip8.debug_memory();
 
-    // for i in 0..12 {
-    //     //Set origin
-    //     chip8.memory[0x200 + i * 8] = 0x60;
-    //     chip8.memory[0x201 + i * 8] = 0x32 + (5 * i as u8) + 1;
-    //     chip8.memory[0x202 + i * 8] = 0x61;
-    //     chip8.memory[0x203 + i * 8] = 0x01;
-
-    //     //Load 0x000 into I
-    //     chip8.memory[0x204 + i * 8] = 0xA0;
-    //     chip8.memory[0x205 + i * 8] = 0x00 + 5 * i as u8;
-
-    //     //Draw
-    //     chip8.memory[0x206 + i * 8] = 0xD0;
-    //     chip8.memory[0x207 + i * 8] = 0x15;
-    // }
-
-    // chip8.graphics[224] = true;
-    // chip8.print_display();
-
     let mut now = Instant::now();
     let mut cycle_count = 0;
     while let Some(e) = window.next() {
+        if DEBUG_MODE {
+            println!("DEBUG MODE - Press any key to emulate next cycle");
+            println!("{}", chip8);
+            let mut input = String::new();
+            io::stdin().read_line(&mut input);
+        }
+
         chip8.emulate_cycle();
         cycle_count += 1;
         // if cycle_count % 60 == 0 {
-            // println!(
-            //     "Cycle # {}. {}.{} seconds since last cycle.",
-            //     cycle_count,
-            //     now.elapsed().as_secs(),
-            //     now.elapsed().subsec_nanos()
-            // );
-            // now = Instant::now();
+        // println!(
+        //     "Cycle # {}. {}.{} seconds since last cycle.",
+        //     cycle_count,
+        //     now.elapsed().as_secs(),
+        //     now.elapsed().subsec_nanos()
+        // );
+        // now = Instant::now();
         // }
 
         if let Some(Button::Keyboard(key_pressed)) = e.press_args() {
@@ -183,15 +171,6 @@ fn main() {
                     }
                 }
             });
-
-            if DEBUG_MODE {
-                println!("DEBUG MODE - Press any key to emulate next cycle");
-                // chip8.debug_memory();
-                let mut input = String::new();
-                io::stdin().read_line(&mut input);
-
-            }
-
         }
     }
 }
